@@ -9,8 +9,6 @@ flags = ['-g']
 
 if bld.env['windows'] == 'yes':
 	flags.extend(['-mms-bitfields', '-mwindows'])
-#	source.extend(['../plugins/achievements.vala', '../plugins/testplugin.vala', '../plugins/highlights.vala', '../plugins/messages.vala', '../plugins/ctcp.vala', '../plugins/ignore.vala'])
-
 
 bld.stlib(
 	source = 'gen_timestamp.c',
