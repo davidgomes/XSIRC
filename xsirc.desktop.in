@@ -8,4 +8,4 @@ Categories=Network;IRCClient;
 StartupNotify=true
 Terminal=false
 Type=Application
-Gettext-Domain=xsirc
+X-Gettext-Domain=xsirc
