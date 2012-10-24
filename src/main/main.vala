@@ -1,5 +1,6 @@
 using Gee;
 using XSIRC;
+
 int main(string[] args) {
 	Gtk.init(ref args);
 	Intl.textdomain(GETTEXT_PACKAGE);

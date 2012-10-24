@@ -118,7 +118,7 @@ namespace XSIRC {
 			icon.activate.connect(() => {
 				XSIRC.Main.gui.main_window.present();
 				XSIRC.Main.gui.main_window.set_urgency_hint(false);
-				icon.blinking = false;
+				//icon.blinking = false;
 			});
 		}
 		
@@ -322,15 +322,12 @@ namespace XSIRC {
 			if(XSIRC.Main.gui.main_window.is_active) {
 				return;
 			}
-			// Haven't figured out the API for Win32 balloons yet :/
-			if(blink_status_icon) {
-				icon.blinking = true;
-			}
+			// Haven't figured out the API for Win32 balloons yet
 			if(blink_on_taskbar) {
 				XSIRC.Main.gui.main_window.set_urgency_hint(true);
 				TimeoutSource src = new TimeoutSource(5000);
 				src.set_callback(() => {
-					icon.blinking = false;
+					//icon.blinking = false;
 					XSIRC.Main.gui.main_window.set_urgency_hint(false);
 					return true;
 				});
