@@ -119,7 +119,7 @@ namespace XSIRC {
 </ui>""";
 
         private bool gui_updated = true;
-        private PrefDialog preferences_dialog = null;
+        private PreferencesDialog preferences_dialog = null;
         private NetworkList network_dialog = null;
         private Gtk.VBox server_vbox;
         private Gtk.HBox main_hbox;
@@ -898,11 +898,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
             dialog.show_all();
         }
 
-        public void create_prefs_dialog() {
-            if(preferences_dialog != null) {
-                preferences_dialog.dialog.present();
+        public void create_prefs_dialog () {
+            if (preferences_dialog != null) {
+                preferences_dialog.dialog.present ();
             } else {
-                preferences_dialog = new PrefDialog();
+                preferences_dialog = new PreferencesDialog ();
             }
         }
 

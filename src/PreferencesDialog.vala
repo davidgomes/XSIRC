@@ -9,7 +9,7 @@ using Gee;
 
 namespace XSIRC {
 
-    public class PrefDialog : Object {
+    public class PreferencesDialog : Object {
 
         public Gtk.Dialog dialog;
         private Gtk.Builder builder;
@@ -34,7 +34,7 @@ namespace XSIRC {
             N_COLUMNS
         }
 
-        public PrefDialog() {
+        public PreferencesDialog () {
             builder = new Gtk.Builder ();
 
             try {
@@ -50,9 +50,11 @@ namespace XSIRC {
             string[] strings = {"nickname","sec_nickname","ter_nickname","username",
                                 "realname","away_msg","quit_msg","log_date_format","log_folder",
                                 "timestamp_format","web_browser","completion_suffix"};
+
             foreach(string str in strings) {
-                ((Gtk.Entry)builder.get_object(str)).text = Main.config.string[str];
+                ((Gtk.Entry) builder.get_object(str)).text = Main.config.string[str];
             }
+
             ((Gtk.FontButton)builder.get_object("font")).font_name = Main.config.string["font"];
             switch(Main.config.string["tab_pos"]) {
             case "top":
