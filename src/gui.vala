@@ -90,17 +90,7 @@ namespace XSIRC {
                         <menuitem action="DisconnectAll"/>
                         <menuitem action="ReconnectAll"/>
                         <separator/>
-                        <menuitem action="OpenLastLink"/>
-                        <menuitem action="OpenSLastLink"/>
-                        <separator/>
                         <menuitem action="Exit"/>
-                </menu>
-                <menu action="EditMenu">
-                        <menuitem action="Bold"/>
-                        <menuitem action="Italic"/>
-                        <menuitem action="Underlined"/>
-                        <menuitem action="Color"/>
-                        <menuitem action="RemoveFormatting"/>
                 </menu>
                 <menu action="ViewMenu">
                         <menuitem action="PrevServer"/>
@@ -108,20 +98,7 @@ namespace XSIRC {
                         <separator/>
                         <menuitem action="PrevView"/>
                         <menuitem action="NextView"/>
-                        <menuitem action="CloseView"/>
-                        <menuitem action="RejoinChannel"/>
-                        <menuitem action="OpenView"/>
                         <separator/>
-                        <menuitem action="View1"/>
-                        <menuitem action="View2"/>
-                        <menuitem action="View3"/>
-                        <menuitem action="View4"/>
-                        <menuitem action="View5"/>
-                        <menuitem action="View6"/>
-                        <menuitem action="View7"/>
-                        <menuitem action="View8"/>
-                        <menuitem action="View9"/>
-                        <menuitem action="View10"/>
                 </menu>
                 <menu action="ServerMenu">
                         <menuitem action="Disconnect"/>
@@ -826,12 +803,15 @@ namespace XSIRC {
 
         public static void spawn_about_cb(Gtk.Action action) {
             Gtk.AboutDialog d = new Gtk.AboutDialog();
+
             d.activate_link.connect ((link) => {
                     Main.gui.open_link (link);
                     return true;
                 });;
-            d.authors = {"Eduardo Niehues (NieXS) <neo.niexs@gmail.com>","Simon Lindholm (operator[]) <simon.lindholm10@gmail.com>"};
-            d.artists = {"MonkeyofDoom (found in Foonetic and xkcd fora)"};
+
+            d.authors = { "Eduardo Niehues (NieXS) <neo.niexs@gmail.com>", "Simon Lindholm (operator[]) <simon.lindholm10@gmail.com>",
+                          "David Gomes (Munchor) <david@elementaryos.org>" };
+            d.artists = { "MonkeyofDoom (found in Foonetic and xkcd fora)" };
             d.copyright = _("Copyright (c) 2010-12 Eduardo Niehues. All rights reserved.");
             d.license = """Copyright (c) 2010-12, Eduardo Niehues.
 All rights reserved.
@@ -857,17 +837,19 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
+
             try {
-                d.logo = new Gdk.Pixbuf.from_file(get_icon_path());
-            } catch(Error e) {
+                d.logo = new Gdk.Pixbuf.from_file (get_icon_path ());
+            } catch (Error e) {
 
             }
+
             d.program_name = "XSIRC";
-            d.comments = _("GTK+ IRC Client");
-            d.version      = VERSION;
-            d.website      = "http://xsirc.niexs.net";
-            d.response.connect(() => {d.destroy();});
-            d.show_all();
+            d.comments = _("GTK3 IRC Client");
+            d.version = VERSION;
+            d.website = "http://www.github.com/davidgomes/xsirc";
+            d.response.connect (() => { d.destroy (); });
+            d.show_all ();
         }
 
         // Link opener for the about dialog
