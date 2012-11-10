@@ -24,7 +24,7 @@ bld.shlib(
     includes = "../vapi",
     target = "libxsirc",
     use = "timestamp",
-    cflags = ["-include","config.h","-g"],
+    cflags = ["-include", "config.h", "-g"],
     linkflags = flags,
     uselib = "GTK GLIB GIO GEE GMODULE"
 )
