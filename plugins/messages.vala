@@ -237,9 +237,9 @@ namespace XSIRC {
 		
 		private void save_palette() {
 			KeyFile conf = new KeyFile();
-			stdout.printf("Saving palette\n");
+			//stdout.printf("Saving palette\n");
 			foreach(int i in MIRCParser.mirc_colors.keys) {
-				stdout.printf("Saving color %d as %s\n",i,MIRCParser.mirc_colors[i]);
+                            //stdout.printf("Saving color %d as %s\n",i,MIRCParser.mirc_colors[i]);
 				conf.set_string("palette","color%d".printf(i),MIRCParser.mirc_colors[i]);
 			}
 			int[] colors = {};
