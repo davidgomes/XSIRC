@@ -18,7 +18,6 @@ namespace XSIRC {
         public Gtk.Label user_count {get; private set;}
         public Gtk.Label nickname {get; private set;}
         private Gtk.VBox user_list_box;
-        private Gtk.Label no_servers_warning = new Gtk.Label(_("No servers! Connect to a server using Ctrl-Shift-O, or open the network list with Ctrl-N."));
         public Gtk.Notebook servers_notebook {get; private set;}
         public Gtk.Label nickname_label {get; private set;}
         public IRCEntry text_entry {get; private set;}
@@ -266,7 +265,6 @@ namespace XSIRC {
             }
 
             server_vbox.pack_start(servers_notebook,true,true,0);
-            server_vbox.pack_start(no_servers_warning,false,false,5);
 
             // Input entry
             Gtk.HBox entry_box = new Gtk.HBox(false,0);
@@ -282,12 +280,8 @@ namespace XSIRC {
                     update_gui(find_server_by_notebook(get_notebook_widget_by_page((int)page_num)),null,true);
                 });
             servers_notebook.page_added.connect(() => {
-                    no_servers_warning.visible = false;
                 });
             servers_notebook.page_removed.connect(() => {
-                    if(servers_notebook.get_n_pages() == 0) {
-                        no_servers_warning.visible = true;
-                    }
                 });
 
             main_window.show_all();
@@ -857,11 +851,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
         public static void open_browser(Gtk.AboutDialog dialog,string link) {
             Main.gui.open_link(link);
         }
+
         // Dialogs
         public void open_connect_dialog() {
             Gtk.Dialog dialog = new Gtk.Dialog.with_buttons(_("Connect to server"),main_window,Gtk.DialogFlags.MODAL|Gtk.DialogFlags.DESTROY_WITH_PARENT,Gtk.Stock.OK,Gtk.ResponseType.ACCEPT,Gtk.Stock.CANCEL,Gtk.ResponseType.REJECT,null);
-            Gtk.HBox box = new Gtk.HBox(false,0);
-            box.pack_start(new Gtk.Label(_("Server URL:")),false,false,0);
+            Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+            box.margin = 12;
+            box.pack_start(new Gtk.Label(_("Server URL:")), false, false, 0);
             Gtk.Entry server_entry = new Gtk.Entry();
             server_entry.text = "irc://";
             server_entry.activate.connect(() => {
