@@ -17,7 +17,7 @@ namespace XSIRC {
         public Gtk.TreeView user_list {get; private set;}
         public Gtk.Label user_count {get; private set;}
         public Gtk.Label nickname {get; private set;}
-        private Gtk.VBox user_list_box;
+        private Gtk.Box user_list_box;
         public Gtk.Notebook servers_notebook {get; private set;}
         public Gtk.Label nickname_label {get; private set;}
         public IRCEntry text_entry {get; private set;}
@@ -120,8 +120,8 @@ namespace XSIRC {
         private bool gui_updated = true;
         private PreferencesDialog preferences_dialog = null;
         private NetworkList network_dialog = null;
-        private Gtk.VBox server_vbox;
-        private Gtk.HBox main_hbox;
+        private Gtk.Box server_vbox;
+        private Gtk.Box main_hbox;
         private Gtk.ScrolledWindow user_list_container;
 
         public class View {
@@ -149,7 +149,7 @@ namespace XSIRC {
                 text_view.editable = false;
                 text_view.cursor_visible = false;
                 text_view.wrap_mode = Gtk.WrapMode.WORD;
-                text_view.modify_font(Pango.FontDescription.from_string(Main.config.string["font"]));
+                text_view.override_font(Pango.FontDescription.from_string(Main.config.string["font"]));
                 text_view.indent = -20;
 
                 scrolled_window = new Gtk.ScrolledWindow(null,null);
@@ -184,7 +184,7 @@ namespace XSIRC {
             main_window.delete_event.connect(quit);
             main_window.destroy.connect(()=>{Gtk.main_quit();});
 
-            Gtk.VBox main_vbox = new Gtk.VBox(false,0); // Main VBox, holds menubar + userlist, server notebook, entry field + status bar
+            Gtk.Box main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0); // Main VBox, holds menubar + userlist, server notebook, entry field + status bar
             main_window.add(main_vbox);
 
             // Menus
@@ -192,7 +192,7 @@ namespace XSIRC {
 
             // This makes translations work, at the expense of a warning. I'm
             // not sure what the proper way of doing this is.
-            action_group.set_translation_domain(null);
+            action_group.set_translation_domain("");
 
             action_group.add_actions(menu_actions,null);
             menu_ui = new Gtk.UIManager();
@@ -219,11 +219,11 @@ namespace XSIRC {
                     });
 
             // Main HBox, users, servers notebook
-            main_hbox = new Gtk.HBox(false,5);
+            main_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 5);
             main_vbox.pack_start(main_hbox,true,true,0);
 
             // User list
-            user_list_box = new Gtk.VBox(false,0);
+            user_list_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             user_count = new Gtk.Label(Markup.escape_text(_("No users")));
             user_count.use_markup = true;
             user_list_box.pack_start(user_count,false,false,5);
@@ -242,7 +242,7 @@ namespace XSIRC {
             user_list.append_column(display_column);
 
             // Quick VBox for server notebook+input
-            server_vbox = new Gtk.VBox(false,0);
+            server_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             //server_vbox.pack_start(topic_view, false, true, 0);
             main_hbox.pack_start(server_vbox,true,true,0);
 
@@ -267,7 +267,7 @@ namespace XSIRC {
             server_vbox.pack_start(servers_notebook,true,true,0);
 
             // Input entry
-            Gtk.HBox entry_box = new Gtk.HBox(false,0);
+            Gtk.Box entry_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
             nickname = new Gtk.Label(Main.config.string["nickname"]);
             entry_box.pack_start(nickname,false,false,5);
             text_entry = new IRCEntry();
@@ -679,7 +679,7 @@ namespace XSIRC {
                         }
                         return false;
                     });
-                Gtk.HBox box = new Gtk.HBox(false,0);
+                Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
                 box.pack_start(new Gtk.Label(_("View name:")),false,false,0);
                 Gtk.Entry server_entry = new Gtk.Entry();
                 server_entry.activate.connect(() => {

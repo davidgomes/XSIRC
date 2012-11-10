@@ -173,7 +173,7 @@ namespace XSIRC {
 
             foreach(Server server in Main.server_manager.servers) {
                 foreach(GUI.View view in server.views) {
-                    view.text_view.modify_font(Pango.FontDescription.from_string(Main.config.string["font"]));
+                    view.text_view.override_font (Pango.FontDescription.from_string(Main.config.string["font"]));
                 }
             }
             Main.config_manager.save_settings();
