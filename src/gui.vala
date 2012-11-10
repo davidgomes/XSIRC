@@ -212,12 +212,12 @@ namespace XSIRC {
 
             // Topic text box
             topic_view = new Gtk.Entry();
-            main_vbox.pack_start(topic_view,false,true,0);
+            //main_vbox.pack_start(topic_view,false,true,0);
             topic_view.activate.connect(() => {
                     if(current_server() != null && current_server().current_view() != null && current_server().current_view().name.has_prefix("#")) {
                         current_server().send("TOPIC %s :%s".printf(current_server().current_view().name,topic_view.text));
                     }
-                });
+                    });
 
             // Main HBox, users, servers notebook
             main_hbox = new Gtk.HBox(false,5);
@@ -236,7 +236,7 @@ namespace XSIRC {
             user_list_container.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
             user_list_container.set_size_request(120,-1);
             user_list_box.pack_start(user_list_container,true,true,0);
-            main_hbox.pack_start(user_list_box,false,true,0);
+            main_hbox.pack_start(user_list_box,false,true, 0);
 
             Gtk.CellRendererText renderer = new Gtk.CellRendererText();
             Gtk.TreeViewColumn display_column = new Gtk.TreeViewColumn.with_attributes(_("Users"),renderer,"text",0,null);
@@ -244,6 +244,7 @@ namespace XSIRC {
 
             // Quick VBox for server notebook+input
             server_vbox = new Gtk.VBox(false,0);
+            //server_vbox.pack_start(topic_view, false, true, 0);
             main_hbox.pack_start(server_vbox,true,true,0);
 
             // Server notebook

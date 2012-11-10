@@ -99,8 +99,8 @@ namespace XSIRC {
             string_defaults["web_browser"] = "xdg-open %s";
             string_defaults["completion_suffix"] = ": ";
             string_defaults["font"] = "Monospace 10";
-            string_defaults["tab_pos"] = "top";
-            string_defaults["userlist_pos"] = "left";
+            string_defaults["tab_pos"] = "left";
+            string_defaults["userlist_pos"] = "right";
             string_defaults["boring_highlight"] = "#4545E6";
             string_defaults["normal_highlight"] = "#2A8C2A";
             string_defaults["important_highlight"] = "#C73232";
