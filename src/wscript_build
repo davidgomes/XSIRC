@@ -19,7 +19,7 @@ bld.stlib(
 bld.shlib(
     source = bld.path.ant_glob("*.vala"),
     features = "c cshlib",
-    packages = "gtk+-3.0 gio-2.0 gee-1.0 posix config glib-2.0 gmodule-2.0",
+    packages = "gtk+-3.0 gio-2.0 gee-1.0 posix config glib-2.0 gmodule-2.0 granite",
     vapi_dirs = "../vapi",
     includes = "../vapi",
     target = "libxsirc",

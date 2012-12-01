@@ -25,6 +25,8 @@ namespace XSIRC {
         public HashMap<View.HighlightLevel,bool> highlight_level_enabled = new HashMap<View.HighlightLevel,bool>();
         public bool has_quit {get; private set;}
 
+        private Granite.Widgets.SourceList servers_tree;
+        
         private const Gtk.ActionEntry[] menu_actions = {
             // Client
             {"ClientMenu",null,N_("_Client")},
