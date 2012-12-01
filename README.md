@@ -16,11 +16,11 @@ and Vala 0.16 for the compilation. Installation is simple:
 ~/xsirc $ ./waf install
 ```
 
-XSIRC can be uninstalled by calling ./waf uninstall.
+XSIRC can be uninstalled by calling `./waf uninstall`.
 
 Credits
 -------
-XSIRC was originally written by Eduardo Niehues. This version is a fork by
+XSIRC was originally written by [Eduardo Niehues](https://github.com/NieXS). This version is a fork by
 David Gomes with the objective of improving it wherever possible.
 
 Contributing
