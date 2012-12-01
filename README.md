@@ -10,12 +10,12 @@ Installation
 XSIRC depends on GTK+ 3, libnotify 0.7 and libgee. It also requires Python
 and Vala 0.16 for the compilation. Installation is simple:
 
-  ~/xsirc $ ./waf configure --prefix=/usr
-  
-  ~/xsirc $ ./waf build
-  
-  ~/xsirc $ ./waf install
- 
+```
+~/xsirc $ ./waf configure --prefix=/usr
+~/xsirc $ ./waf build  
+~/xsirc $ ./waf install
+```
+
 XSIRC can be uninstalled by calling ./waf uninstall.
 
 Credits
