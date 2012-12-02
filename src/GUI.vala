@@ -244,21 +244,21 @@ namespace XSIRC {
             servers_tree = new Granite.Widgets.SourceList ();
 
             var pane = new Granite.Widgets.ThinPaned ();
-            pane.pack1 (servers_tree, true, true);
+            pane.pack1 (servers_tree, false, true);
             main_hbox.pack_start (pane, true, true, 0);
+
+            var server_pane = new Granite.Widgets.ThinPaned ();
+            server_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+            server_pane.pack2 (server_vbox, true, false);
+            main_hbox.pack_start(server_pane, true, true, 0);
+
+            var user_list_pane = new Granite.Widgets.ThinPaned ();
+            user_list_pane.pack2 (user_list_box, true, true);
+            main_hbox.pack_start(user_list_pane, true, true, 0);
 
             Gtk.CellRendererText renderer = new Gtk.CellRendererText();
             Gtk.TreeViewColumn display_column = new Gtk.TreeViewColumn.with_attributes(_("Users"),renderer,"text",0,null);
             user_list.append_column(display_column);
-
-            var server_pane = new Granite.Widgets.ThinPaned ();
-            server_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-            server_pane.pack1 (server_vbox, true, true);
-            main_hbox.pack_start(server_pane, true, true, 0);
-
-            var user_list_pane = new Granite.Widgets.ThinPaned ();
-            user_list_pane.pack1 (user_list_box, true, true);
-            main_hbox.pack_start(user_list_pane, true, true, 0);
             
             // Server notebook
             servers_notebook = new Gtk.Notebook();
