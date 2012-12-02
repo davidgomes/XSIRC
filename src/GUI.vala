@@ -243,15 +243,9 @@ namespace XSIRC {
             main_hbox.pack_start(user_list_box,false,true, 0);
 
             servers_tree = new Granite.Widgets.SourceList ();
-            var freenode_server = new Granite.Widgets.SourceList.ExpandableItem("Freenode");
-            var elementary_channel = new Granite.Widgets.SourceList.Item ("#elementary-dev");
-            freenode_server.add (elementary_channel);
-            freenode_server.expand_all ();
-            var root = servers_tree.root;
-            root.add(freenode_server);
 
             var pane = new Granite.Widgets.ThinPaned ();
-            pane.pack1 (servers_tree, true, false);
+            pane.pack1 (servers_tree, true, true);
 
             main_hbox.pack_start (pane, true, true, 0);
 
@@ -265,8 +259,8 @@ namespace XSIRC {
             main_hbox.pack_start(server_vbox,true,true,0);
 
             // Server notebook
-
             servers_notebook = new Gtk.Notebook();
+            //servers_notebook.show_tabs = false;
             switch(Main.config.string["tab_pos"]) {
             case "top":
                 servers_notebook.tab_pos = Gtk.PositionType.TOP;
@@ -326,11 +320,11 @@ namespace XSIRC {
 
         }
 
-        public void startup() {
+        public void startup () {
 
         }
 
-        public void apply_settings() {
+        public void apply_settings () {
             if(!Main.config.bool["show_user_list"]) {
                 user_list_box.visible = false;
             } else {
@@ -378,17 +372,18 @@ namespace XSIRC {
                 }
                 break;
             }
+
             highlight_level_enabled[View.HighlightLevel.BORING] = true;
             highlight_level_enabled[View.HighlightLevel.NORMAL] = true;
             highlight_level_enabled[View.HighlightLevel.IMPORTANT] = true;
         }
 
         public void iterate() {
-            while(Gtk.events_pending()) {
+            while (Gtk.events_pending ()) {
                 Gtk.main_iteration();
             }
-            if(!gui_updated) {
-                update_gui(current_server());
+            if (!gui_updated) {
+                update_gui (current_server ());
                 gui_updated = true;
             }
         }
@@ -444,42 +439,82 @@ namespace XSIRC {
             return q;
         }
 
-        public void update_gui(Server? server,owned GUI.View? curr_view = null,bool force = false) {
-            if(server != null) {
+        public void update_gui(Server? server, owned GUI.View? curr_view=null, bool force=false) {
+            var root = servers_tree.root;
+            root.clear ();
+
+            foreach (Server server_ in Main.server_manager.servers) {
+                var server_item = new Granite.Widgets.SourceList.ExpandableItem (server_.label.get_text ());
+
+                foreach (Server.Channel channel in server_.channels) {
+                    var channel_item = new Granite.Widgets.SourceList.Item (channel.name);
+
+                    channel_item.activated.connect(() => {
+                        print (channel_item.parent.name);
+
+                        for (var i = 0; i < servers_notebook.get_n_pages (); i++) {
+                            if (servers_notebook.get_tab_label_text (servers_notebook.get_nth_page (i)) == channel_item.parent.name) {
+                                servers_notebook.set_current_page (i);
+                            }
+                        }
+
+                        for (var i = 0; i < Main.server_manager.servers.size; i++) {
+                            for (var u = 0; u < Main.server_manager.servers[i].notebook.get_n_pages (); u++) {
+                                if (Main.server_manager.servers[i].notebook.get_tab_label_text (Main.server_manager.servers[i].notebook.get_nth_page (u)) == channel_item.name) {
+                                    Main.server_manager.servers[i].notebook.set_current_page (u);
+                                }
+                            }
+                        }
+                    });
+
+                    server_item.add (channel_item);
+                }
+
+                server_item.expand_all ();
+                root.add (server_item);
+            }
+
+            if (server != null) {
                 // Only servers in the foreground can update the GUI
-                if(server != current_server() && !force) {
+                if (server != current_server() && !force) {
                     return;
                 }
+
                 // User list
-                if(curr_view == null) {
+                if (curr_view == null) {
                     curr_view = server.current_view();
                 }
+
                 Gtk.ListStore list = user_list.model as Gtk.ListStore;
                 list.clear();
-                if((curr_view != null) && (server.find_channel(curr_view.name) != null)) {
+                if ((curr_view != null) && (server.find_channel(curr_view.name) != null)) {
                     Gtk.TreeIter iter;
                     foreach(string user in server.find_channel(curr_view.name).raw_users) {
                         list.append(out iter);
                         list.set(iter,0,user,-1);
                     }
                 }
+
                 nickname.label = server.nick;
+
                 StringBuilder title_string = new StringBuilder("XSIRC - ");
                 title_string.append(server.nick).append("@");
-                if(server.network != null) {
+                if (server.network != null) {
                     title_string.append(server.network.name);
                 } else {
                     title_string.append(server.server);
                 }
-                if(server.connecting) {
+
+                if (server.connecting) {
                     title_string.append(_(" (connecting)"));
                 } else if(!server.connected) {
                     title_string.append(_(" (disconnected)"));
                 }
-                if(server.current_view() != null) {
+
+                if (server.current_view() != null) {
                     title_string.append(" - ").append(curr_view.name);
-                    if(server.find_channel(curr_view.name) != null) {
-                        if(!server.find_channel(curr_view.name).in_channel) {
+                    if (server.find_channel(curr_view.name) != null) {
+                        if (!server.find_channel(curr_view.name).in_channel) {
                             title_string.append(_(" (out of channel)"));
                         }
                         title_string.append(" (").append(server.find_channel(curr_view.name).mode).append(")");
@@ -491,11 +526,12 @@ namespace XSIRC {
                         topic_view.text = "";
                     }
                 }
+
                 // Updating the labels in the view menu
                 for(int i = 1; i <= 10; i++) {
                     Gtk.MenuItem item = menu_ui.get_widget("/MainMenu/ViewMenu/View%d".printf(i)) as Gtk.MenuItem;
                     item.visible = false;
-                    if(current_server() != null) {
+                    if (current_server() != null) {
                         if(current_server().notebook.get_n_pages() >= i) {
                             item.label = current_server().find_view_from_scrolled_window(current_server().notebook.get_nth_page(i-1) as Gtk.ScrolledWindow).name;
                             item.visible = true;
@@ -515,9 +551,10 @@ namespace XSIRC {
                     item.visible = false;
                 }
             }
+
             // Updating labels
-            foreach(Server server_ in Main.server_manager.servers) {
-                if(!server_.connected) {
+            foreach (Server server_ in Main.server_manager.servers) {
+                if (!server_.connected) {
                     if(current_server() != server_ && server_.label.label.has_prefix("<span")) {
                         string color = server_.label.label.split("\"")[1];
                         server_.label.label = "<span foreground=\"%s\">(%s)</span>".printf(color,Markup.escape_text((server_.network != null ? server_.network.name+" - " : "")+server_.server));
@@ -532,9 +569,11 @@ namespace XSIRC {
                         server_.label.label = "%s".printf(Markup.escape_text((server_.network != null ? server_.network.name+" - " : "")+server_.server));
                     }
                 }
+
                 foreach(Server.Channel channel in server_.channels) {
                     View view = server_.find_view(channel.name);
-                    if(!channel.in_channel) {
+
+                    if (!channel.in_channel) {
                         if(server_.current_view() != view && view.label.label.has_prefix("<span")) {
                             string color = view.label.label.split("\"")[1];
                             view.label.label = "<span foreground=\"%s\">(%s)</span>".printf(color,Markup.escape_text(channel.name));
@@ -551,6 +590,7 @@ namespace XSIRC {
                     }
                 }
             }
+
         }
 
         public void queue_update_gui() {
@@ -558,7 +598,6 @@ namespace XSIRC {
         }
 
         // Network and view finding stuff
-
         public Gtk.Widget? get_curr_notebook_widget() {
             foreach(Gtk.Widget child in servers_notebook.get_children()) {
                 if(servers_notebook.page_num(child) == servers_notebook.page) {
@@ -875,11 +914,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
             Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
             box.margin = 12;
             box.pack_start(new Gtk.Label(_("Server URL:")), false, false, 0);
+
             Gtk.Entry server_entry = new Gtk.Entry();
             server_entry.text = "irc://";
             server_entry.activate.connect(() => {
                     dialog.response(Gtk.ResponseType.ACCEPT);
                 });
+
             dialog.key_press_event.connect((key) => {
                     if(key.keyval == Gdk.keyval_from_name("Escape")) {
                         dialog.destroy();
@@ -887,6 +928,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
                     }
                     return false;
                 });
+
             box.pack_start(server_entry,false,false,0);
             server_entry.grab_focus();
 
@@ -937,7 +979,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
         }
 
         // Misc
-
         public void open_link(string link) {
 #if WINDOWS
             open_url_in_browser(link);
