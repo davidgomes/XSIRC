@@ -242,11 +242,12 @@ namespace XSIRC {
             user_list_box.pack_start(user_list_container,true,true,0);
             main_hbox.pack_start(user_list_box,false,true, 0);
 
+            servers_tree = new Granite.Widgets.SourceList ();
             var freenode_server = new Granite.Widgets.SourceList.ExpandableItem("Freenode");
             var elementary_channel = new Granite.Widgets.SourceList.Item ("#elementary-dev");
+            freenode_server.add (elementary_channel);
             var root = servers_tree.root;
             root.add(freenode_server);
-            freenode_server.add (elementary_channel);
 
             var pane = new Granite.Widgets.ThinPaned ();
             pane.pack1 (servers_tree, true, false);
