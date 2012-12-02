@@ -26,7 +26,7 @@ namespace XSIRC {
         public bool has_quit {get; private set;}
 
         private Granite.Widgets.SourceList servers_tree;
-        
+
         private const Gtk.ActionEntry[] menu_actions = {
             // Client
             {"ClientMenu",null,N_("_Client")},
@@ -37,6 +37,7 @@ namespace XSIRC {
             {"OpenLastLink",null,N_("_Open last link"),"F2",null,open_last_link_cb},
             {"OpenSLastLink",null,N_("O_pen sec-to-last link"),"<control>F2",null,open_sl_link_cb},
             {"Exit",Gtk.Stock.QUIT,null,null,null,quit_client_cb},
+
             // Edit
             {"EditMenu",null,N_("_Edit")},
             {"Bold",Gtk.Stock.BOLD,null,"<control>B",null,bold_cb},
@@ -74,6 +75,7 @@ namespace XSIRC {
             {"CloseServer",Gtk.Stock.CLOSE,N_("_Close"),"<control><shift>w",null,close_server_cb},
             {"RejoinAll",Gtk.Stock.REFRESH,N_("Re_join all"),null,null,rejoin_all_cb},
             {"GoAway",null,N_("_Mark as away"),"<control><shift>a",null,go_away_cb},
+
             // Help
             {"HelpMenu",null,N_("_Help")},
             {"HelpContents",Gtk.Stock.HELP,N_("_Online help"),"F1",null,spawn_help_cb},
@@ -133,13 +135,14 @@ namespace XSIRC {
                 NORMAL,
                 IMPORTANT
             }
+
             public string name;
             public Gtk.ScrolledWindow scrolled_window;
             public Gtk.TextView text_view;
             public Gtk.Label label;
             public HighlightLevel highlight_level;
 
-            public View(string name) {
+            public View (string name) {
                 this.name = name;
 
                 highlight_level = HighlightLevel.NONE;
@@ -160,10 +163,10 @@ namespace XSIRC {
                 scrolled_window.add(text_view);
             }
 
-            public void add_text(string what) {
+            public void add_text (string what) {
                 string text;
                 if(Main.config.bool["show_timestamps"]) {
-                    text = Main.gui.timestamp() + " "+what+"\n";
+                    text = Main.gui.timestamp() + " "+ what+"\n";
                 } else {
                     text = what+"\n";
                 }
@@ -215,10 +218,10 @@ namespace XSIRC {
             topic_view = new Gtk.Entry();
             //main_vbox.pack_start(topic_view,false,true,0);
             topic_view.activate.connect(() => {
-                    if(current_server() != null && current_server().current_view() != null && current_server().current_view().name.has_prefix("#")) {
-                        current_server().send("TOPIC %s :%s".printf(current_server().current_view().name,topic_view.text));
-                    }
-                    });
+                if(current_server() != null && current_server().current_view() != null && current_server().current_view().name.has_prefix("#")) {
+                    current_server().send("TOPIC %s :%s".printf(current_server().current_view().name,topic_view.text));
+                }
+            });
 
             // Main HBox, users, servers notebook
             main_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 5);
@@ -239,6 +242,17 @@ namespace XSIRC {
             user_list_box.pack_start(user_list_container,true,true,0);
             main_hbox.pack_start(user_list_box,false,true, 0);
 
+            var freenode_server = new Granite.Widgets.SourceList.ExpandableItem("Freenode");
+            var elementary_channel = new Granite.Widgets.SourceList.Item ("#elementary-dev");
+            var root = servers_tree.root;
+            root.add(freenode_server);
+            freenode_server.add (elementary_channel);
+
+            var pane = new Granite.Widgets.ThinPaned ();
+            pane.pack1 (servers_tree, true, false);
+
+            main_vbox.pack_start (pane, true, true, 0);
+            
             Gtk.CellRendererText renderer = new Gtk.CellRendererText();
             Gtk.TreeViewColumn display_column = new Gtk.TreeViewColumn.with_attributes(_("Users"),renderer,"text",0,null);
             user_list.append_column(display_column);
@@ -276,7 +290,6 @@ namespace XSIRC {
             entry_box.pack_start(text_entry,true,true,0);
             server_vbox.pack_start(entry_box,false,false,0);
 
-
             // Server-switching
             servers_notebook.switch_page.connect((nb_page,page_num) => {
                     update_gui(find_server_by_notebook(get_notebook_widget_by_page((int)page_num)),null,true);
@@ -285,9 +298,9 @@ namespace XSIRC {
                 });
             servers_notebook.page_removed.connect(() => {
                 });
-
+            
             main_window.show_all();
-
+            
             TimeoutSource src = new TimeoutSource(100);
             src.set_callback(() => {
                     if(!gui_updated) {

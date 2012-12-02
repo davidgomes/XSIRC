@@ -24,20 +24,20 @@ bld.shlib(
     includes = "../vapi",
     target = "libxsirc",
     use = "timestamp",
-    cflags = ["-include", "config.h", "-g"],
+    cflags = ["-include", "config.h", "-g", "-pthread", "-I/usr/include/granite", "-I/usr/include/cairo", "-I/usr/include/gee-1.0", "-I/usr/include/glib-2.0", "-I/usr/lib/glib-2.0/include", "-I/usr/include/gio-unix-2.0/", "-I/usr/include/gtk-3.0", "-I/usr/include/gdk-pixbuf-2.0", "-I/usr/include/pixman-1", "-I/usr/include/freetype2", "-I/usr/include/libpng15", "-I/usr/include/pango-1.0", "-I/usr/include/harfbuzz", "-I/usr/include/atk-1.0", "-I/usr/include/at-spi2-atk/2.0", "-lgranite"],
     linkflags = flags,
-    uselib = "GTK GLIB GIO GEE GMODULE"
+    uselib = "GTK GLIB GIO GEE GMODULE GRANITE"
 )
 
 bld.program(
     source = "main/main.vala",
     features = "c cprogram",
-    packages = "gtk+-3.0 gio-2.0 gee-1.0 posix config glib-2.0 gmodule-2.0 libxsirc",
+    packages = "gtk+-3.0 gio-2.0 gee-1.0 posix config glib-2.0 gmodule-2.0 libxsirc granite",
     vapi_dirs = "../vapi",
     includes = "../vapi .",
     target = "xsirc",
     use = "timestamp libxsirc",
-    cflags = ["-include", "config.h", "-g"],
+    cflags = ["-include", "config.h", "-g", "-pthread", "-I/usr/include/granite", "-I/usr/include/cairo", "-I/usr/include/gee-1.0", "-I/usr/include/glib-2.0", "-I/usr/lib/glib-2.0/include", "-I/usr/include/gio-unix-2.0/", "-I/usr/include/gtk-3.0", "-I/usr/include/gdk-pixbuf-2.0", "-I/usr/include/pixman-1", "-I/usr/include/freetype2", "-I/usr/include/libpng15", "-I/usr/include/pango-1.0", "-I/usr/include/harfbuzz", "-I/usr/include/atk-1.0", "-I/usr/include/at-spi2-atk/2.0", "-lgranite"],
     linkflags = flags,
-    uselib = "GTK GLIB GIO GEE GMODULE"
+    uselib = "GTK GLIB GIO GEE GMODULE GRANITE"
 )
