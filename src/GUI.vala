@@ -15,7 +15,6 @@ namespace XSIRC {
         // GUI proper
         public Gtk.Window main_window {get; private set;}
         public Gtk.TreeView user_list {get; private set;}
-        public Gtk.Label user_count {get; private set;}
         public Gtk.Label nickname {get; private set;}
         private Gtk.Box user_list_box;
         public Gtk.Notebook servers_notebook {get; private set;}
@@ -212,7 +211,8 @@ namespace XSIRC {
 
             // Menu bar & children
             Gtk.MenuBar menu_bar = menu_ui.get_widget("/MainMenu") as Gtk.MenuBar;
-            main_vbox.pack_start(menu_bar,false,true,0);
+            Gtk.Toolbar tool_bar = new Gtk.Toolbar ();
+            main_vbox.pack_start(menu_bar, false, true, 0);
 
             // Topic text box
             topic_view = new Gtk.Entry();
@@ -225,13 +225,13 @@ namespace XSIRC {
 
             // Main HBox, users, servers notebook
             main_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 5);
-            main_vbox.pack_start(main_hbox,true,true,0);
+
+            var main_pane = new Granite.Widgets.ThinPaned ();
+            main_pane.pack1 (main_hbox, true, true);
+            main_vbox.pack_start(main_pane, true, true, 0);
 
             // User list
             user_list_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-            user_count = new Gtk.Label(Markup.escape_text(_("No users")));
-            user_count.use_markup = true;
-            user_list_box.pack_start(user_count,false,false,5);
             user_list = new Gtk.TreeView.with_model(new Gtk.ListStore(1,typeof(string)));
             user_list.headers_visible = false;
             user_list_container = new Gtk.ScrolledWindow(null,null);
@@ -240,24 +240,26 @@ namespace XSIRC {
             user_list_container.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
             user_list_container.set_size_request(120,-1);
             user_list_box.pack_start(user_list_container,true,true,0);
-            main_hbox.pack_start(user_list_box,false,true, 0);
 
             servers_tree = new Granite.Widgets.SourceList ();
 
             var pane = new Granite.Widgets.ThinPaned ();
             pane.pack1 (servers_tree, true, true);
-
             main_hbox.pack_start (pane, true, true, 0);
 
             Gtk.CellRendererText renderer = new Gtk.CellRendererText();
             Gtk.TreeViewColumn display_column = new Gtk.TreeViewColumn.with_attributes(_("Users"),renderer,"text",0,null);
             user_list.append_column(display_column);
 
-            // Quick VBox for server notebook+input
+            var server_pane = new Granite.Widgets.ThinPaned ();
             server_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-            //server_vbox.pack_start(topic_view, false, true, 0);
-            main_hbox.pack_start(server_vbox,true,true,0);
+            server_pane.pack1 (server_vbox, true, true);
+            main_hbox.pack_start(server_pane, true, true, 0);
 
+            var user_list_pane = new Granite.Widgets.ThinPaned ();
+            user_list_pane.pack1 (user_list_box, true, true);
+            main_hbox.pack_start(user_list_pane, true, true, 0);
+            
             // Server notebook
             servers_notebook = new Gtk.Notebook();
             //servers_notebook.show_tabs = false;
@@ -450,8 +452,6 @@ namespace XSIRC {
                     var channel_item = new Granite.Widgets.SourceList.Item (channel.name);
 
                     channel_item.activated.connect(() => {
-                        print (channel_item.parent.name);
-
                         for (var i = 0; i < servers_notebook.get_n_pages (); i++) {
                             if (servers_notebook.get_tab_label_text (servers_notebook.get_nth_page (i)) == channel_item.parent.name) {
                                 servers_notebook.set_current_page (i);
@@ -519,10 +519,8 @@ namespace XSIRC {
                         }
                         title_string.append(" (").append(server.find_channel(curr_view.name).mode).append(")");
                         title_string.append(_(" (%d users)").printf(server.find_channel(curr_view.name).users.size));
-                        user_count.label = Markup.escape_text(_("%d users").printf(server.find_channel(curr_view.name).users.size));
                         topic_view.text = server.find_channel(curr_view.name).topic.content;
                     } else {
-                        user_count.label = Markup.escape_text(_("No users"));
                         topic_view.text = "";
                     }
                 }
