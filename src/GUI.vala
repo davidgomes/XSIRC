@@ -246,14 +246,15 @@ namespace XSIRC {
             var freenode_server = new Granite.Widgets.SourceList.ExpandableItem("Freenode");
             var elementary_channel = new Granite.Widgets.SourceList.Item ("#elementary-dev");
             freenode_server.add (elementary_channel);
+            freenode_server.expand_all ();
             var root = servers_tree.root;
             root.add(freenode_server);
 
             var pane = new Granite.Widgets.ThinPaned ();
             pane.pack1 (servers_tree, true, false);
 
-            main_vbox.pack_start (pane, true, true, 0);
-            
+            main_hbox.pack_start (pane, true, true, 0);
+
             Gtk.CellRendererText renderer = new Gtk.CellRendererText();
             Gtk.TreeViewColumn display_column = new Gtk.TreeViewColumn.with_attributes(_("Users"),renderer,"text",0,null);
             user_list.append_column(display_column);
@@ -299,9 +300,9 @@ namespace XSIRC {
                 });
             servers_notebook.page_removed.connect(() => {
                 });
-            
+
             main_window.show_all();
-            
+
             TimeoutSource src = new TimeoutSource(100);
             src.set_callback(() => {
                     if(!gui_updated) {
