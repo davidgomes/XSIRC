@@ -241,25 +241,10 @@ namespace XSIRC {
             user_list_container.set_size_request(120,-1);
             user_list_box.pack_start(user_list_container,true,true,0);
 
-            servers_tree = new Granite.Widgets.SourceList ();
-
-            var pane = new Granite.Widgets.ThinPaned ();
-            pane.pack1 (servers_tree, false, true);
-            main_hbox.pack_start (pane, true, true, 0);
-
-            var server_pane = new Granite.Widgets.ThinPaned ();
-            server_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-            server_pane.pack2 (server_vbox, true, false);
-            main_hbox.pack_start(server_pane, true, true, 0);
-
-            var user_list_pane = new Granite.Widgets.ThinPaned ();
-            user_list_pane.pack2 (user_list_box, true, true);
-            main_hbox.pack_start(user_list_pane, true, true, 0);
-
             Gtk.CellRendererText renderer = new Gtk.CellRendererText();
             Gtk.TreeViewColumn display_column = new Gtk.TreeViewColumn.with_attributes(_("Users"),renderer,"text",0,null);
             user_list.append_column(display_column);
-            
+
             // Server notebook
             servers_notebook = new Gtk.Notebook();
             //servers_notebook.show_tabs = false;
@@ -278,6 +263,7 @@ namespace XSIRC {
                 break;
             }
 
+            server_vbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             server_vbox.pack_start(servers_notebook,true,true,0);
 
             // Input entry
@@ -290,12 +276,24 @@ namespace XSIRC {
 
             // Server-switching
             servers_notebook.switch_page.connect((nb_page,page_num) => {
-                    update_gui(find_server_by_notebook(get_notebook_widget_by_page((int)page_num)),null,true);
-                });
-            servers_notebook.page_added.connect(() => {
-                });
-            servers_notebook.page_removed.connect(() => {
-                });
+                update_gui(find_server_by_notebook(get_notebook_widget_by_page((int)page_num)),null,true);
+            });
+
+            servers_notebook.page_added.connect(() => { });
+            servers_notebook.page_removed.connect(() => { });
+
+            servers_tree = new Granite.Widgets.SourceList ();
+
+            var main_paned = new Granite.Widgets.ThinPaned ();
+            main_paned.pack1 (servers_tree, false, false);
+            main_paned.position = 200;
+            var contacts_paned = new Granite.Widgets.ThinPaned ();
+            main_paned.pack2 (contacts_paned, true, true);
+
+            contacts_paned.pack1 (server_vbox, false, false);
+            contacts_paned.pack2 (user_list_box, false, true);
+
+            main_hbox.pack_start (main_paned, true, true, 0);
 
             main_window.show_all();
 
