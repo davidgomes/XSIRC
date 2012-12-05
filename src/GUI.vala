@@ -247,7 +247,7 @@ namespace XSIRC {
 
             // Server notebook
             servers_notebook = new Gtk.Notebook();
-            //servers_notebook.show_tabs = false;
+            servers_notebook.show_tabs = false;
             switch(Main.config.string["tab_pos"]) {
             case "top":
                 servers_notebook.tab_pos = Gtk.PositionType.TOP;
@@ -299,12 +299,14 @@ namespace XSIRC {
 
             TimeoutSource src = new TimeoutSource(100);
             src.set_callback(() => {
-                    if(!gui_updated) {
-                        update_gui(current_server());
-                        gui_updated = true;
-                    }
-                    return true;
-                });
+                if (!gui_updated) {
+                    update_gui(current_server());
+                    gui_updated = true;
+                }
+
+                return true;
+            });
+
             src.attach(null);
 
             // GUI settings
@@ -314,7 +316,7 @@ namespace XSIRC {
             text_entry.grab_focus();
 
             // Checking if it's a probable first run
-            if(!Main.config_manager.loaded_config) {
+            if (!Main.config_manager.loaded_config) {
                 create_prefs_dialog();
             }
 
@@ -449,7 +451,7 @@ namespace XSIRC {
                 foreach (Server.Channel channel in server_.channels) {
                     var channel_item = new Granite.Widgets.SourceList.Item (channel.name);
 
-                    channel_item.activated.connect(() => {
+                    channel_item.activated.connect (() => {
                         for (var i = 0; i < servers_notebook.get_n_pages (); i++) {
                             if (servers_notebook.get_tab_label_text (servers_notebook.get_nth_page (i)) == channel_item.parent.name) {
                                 servers_notebook.set_current_page (i);
@@ -466,6 +468,21 @@ namespace XSIRC {
                     });
 
                     server_item.add (channel_item);
+                }
+
+                if (server_.channels.size == 0) {
+                    var no_channels_item = new Granite.Widgets.SourceList.Item ("No channels");
+
+                    no_channels_item.activated.connect (() => {
+                        for (var i = 0; i < servers_notebook.get_n_pages (); i++) {
+                            if (servers_notebook.get_tab_label_text (servers_notebook.get_nth_page (i)) == no_channels_item.parent.name) {
+                                servers_notebook.set_current_page (i);
+                                Main.server_manager.servers[i].notebook.set_current_page (0);
+                            }
+                        }
+                    });
+
+                    server_item.add (no_channels_item);
                 }
 
                 server_item.expand_all ();
