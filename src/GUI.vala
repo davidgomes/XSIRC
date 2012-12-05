@@ -1,5 +1,5 @@
 /*
- * gui.vala
+ * GUI.vala
  *
  * Copyright (c) 2012 Eduardo Niehues
  * Distributed under the New BSD License; see ../LICENSE for details.
@@ -212,8 +212,19 @@ namespace XSIRC {
             // Menu bar & children
             Gtk.MenuBar menu_bar = menu_ui.get_widget("/MainMenu") as Gtk.MenuBar;
             Gtk.Toolbar tool_bar = new Gtk.Toolbar ();
+            tool_bar.toolbar_style = Gtk.ToolbarStyle.ICONS;
             main_vbox.pack_start(menu_bar, false, true, 0);
+            main_vbox.pack_start (tool_bar, false, true, 0);
 
+            /* Set up tool bar */
+            Gtk.ToolButton connect_server_button = new Gtk.ToolButton.from_stock (Gtk.Stock.NETWORK);
+            connect_server_button.clicked.connect (open_connect_dialog);
+            tool_bar.add (connect_server_button);
+
+            Gtk.ToolButton join_channel_button = new Gtk.ToolButton.from_stock (Gtk.Stock.CONNECTz);
+            //join_channel_button.clicked.connect ();
+            tool_bar.add (join_channel_button);
+            
             // Topic text box
             topic_view = new Gtk.Entry();
             //main_vbox.pack_start(topic_view,false,true,0);
