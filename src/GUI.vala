@@ -12,6 +12,7 @@ namespace XSIRC {
     public class GUI : Object {
 
         public static const string link_regex = "([a-z]+://[a-zA-Z0-9\\-.]+(:[0-9]+)?(/[a-zA-Z0-9\\-_$.+\\[\\]!*\\(),;:@&=?/~#%]+)?)";
+
         // GUI proper
         public Gtk.Window main_window {get; private set;}
         public Gtk.TreeView user_list {get; private set;}
@@ -25,7 +26,8 @@ namespace XSIRC {
         public bool has_quit {get; private set;}
 
         private Granite.Widgets.SourceList servers_tree;
-
+        private Server currently_viewed_server;
+        
         private const Gtk.ActionEntry[] menu_actions = {
             // Client
             {"ClientMenu",null,N_("_Client")},
@@ -221,10 +223,10 @@ namespace XSIRC {
             connect_server_button.clicked.connect (open_connect_dialog);
             tool_bar.add (connect_server_button);
 
-            Gtk.ToolButton join_channel_button = new Gtk.ToolButton.from_stock (Gtk.Stock.CONNECTz);
-            //join_channel_button.clicked.connect ();
+            Gtk.ToolButton join_channel_button = new Gtk.ToolButton.from_stock (Gtk.Stock.CONNECT);
+            join_channel_button.clicked.connect (open_join_dialog);
             tool_bar.add (join_channel_button);
-            
+
             // Topic text box
             topic_view = new Gtk.Entry();
             //main_vbox.pack_start(topic_view,false,true,0);
@@ -473,6 +475,7 @@ namespace XSIRC {
                             for (var u = 0; u < Main.server_manager.servers[i].notebook.get_n_pages (); u++) {
                                 if (Main.server_manager.servers[i].notebook.get_tab_label_text (Main.server_manager.servers[i].notebook.get_nth_page (u)) == channel_item.name) {
                                     Main.server_manager.servers[i].notebook.set_current_page (u);
+                                    currently_viewed_server = Main.server_manager.servers[i];
                                 }
                             }
                         }
@@ -877,54 +880,21 @@ namespace XSIRC {
         }
 
         public static void spawn_about_cb(Gtk.Action action) {
-            Gtk.AboutDialog d = new Gtk.AboutDialog();
-
-            d.activate_link.connect ((link) => {
-                    Main.gui.open_link (link);
-                    return true;
-                });;
-
-            d.authors = { "Eduardo Niehues (NieXS) <neo.niexs@gmail.com>", "Simon Lindholm (operator[]) <simon.lindholm10@gmail.com>",
-                          "David Gomes (Munchor) <david@elementaryos.org>" };
-            d.artists = { "MonkeyofDoom (found in Foonetic and xkcd fora)" };
-            d.copyright = _("Copyright (c) 2010-12 Eduardo Niehues. All rights reserved.");
-            d.license = """Copyright (c) 2010-12, Eduardo Niehues.
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the Eduardo Niehues nor the
-      names of his contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL EDUARDO NIEHUES BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
-
-            try {
-                d.logo = new Gdk.Pixbuf.from_file (get_icon_path ());
-            } catch (Error e) {
-
-            }
-
-            d.program_name = "XSIRC";
-            d.comments = _("GTK3 IRC Client");
-            d.version = VERSION;
-            d.website = "http://www.github.com/davidgomes/xsirc";
-            d.response.connect (() => { d.destroy (); });
-            d.show_all ();
+            Gtk.Window window = Main.gui.main_window;
+            Granite.Widgets.show_about_dialog ((Gtk.Window) window,
+                                               "program-name", "XSIRC",
+                                               "version", "0.1",
+                                               "copyright", "Copyright David Gomes",
+                                               "license-type", Gtk.License.GPL_3_0,
+                                               "website", "http://www.github.com/davidgomes/XSIRC",
+                                               "website-label",  "XSIRC",
+                                               "authors", "Eduardo Niehues, David Gomes",
+                                               "artists", "",
+                                               "logo-icon-name", "",
+                                               "translator-credits",  "",
+                                               "help", "http://www.github.com/davidgomes/XSIRC",
+                                               "translate", "",
+                                               "bug", "https://github.com/davidgomes/XSIRC/issues");
         }
 
         // Link opener for the about dialog
@@ -933,32 +903,77 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
         }
 
         // Dialogs
-        public void open_connect_dialog() {
-            Gtk.Dialog dialog = new Gtk.Dialog.with_buttons(_("Connect to server"),main_window,Gtk.DialogFlags.MODAL|Gtk.DialogFlags.DESTROY_WITH_PARENT,Gtk.Stock.OK,Gtk.ResponseType.ACCEPT,Gtk.Stock.CANCEL,Gtk.ResponseType.REJECT,null);
-            Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-            box.margin = 12;
-            box.pack_start(new Gtk.Label(_("Server URL:")), false, false, 0);
+        public void open_join_dialog () {
+            Gtk.Dialog dialog = new Gtk.Dialog.with_buttons (_("Join channel"), main_window,
+                                                             Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                                                             Gtk.Stock.OK, Gtk.ResponseType.ACCEPT, Gtk.Stock.CANCEL,
+                                                             Gtk.ResponseType.REJECT, null);
 
-            Gtk.Entry server_entry = new Gtk.Entry();
-            server_entry.text = "irc://";
-            server_entry.activate.connect(() => {
-                    dialog.response(Gtk.ResponseType.ACCEPT);
-                });
+            Gtk.Box box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            box.margin = 0;
+            box.pack_start (new Gtk.Label (_("Channel:")), false, false, 0);
 
+            Gtk.Entry channel_entry = new Gtk.Entry ();
+            channel_entry.text = "#";
+            channel_entry.activate.connect (() => { dialog.response (Gtk.ResponseType.ACCEPT); });
+            
             dialog.key_press_event.connect((key) => {
-                    if(key.keyval == Gdk.keyval_from_name("Escape")) {
-                        dialog.destroy();
-                        return true;
-                    }
-                    return false;
-                });
+                if (key.keyval == Gdk.keyval_from_name ("Escape")) {
+                    dialog.destroy ();
+                    return true;
+                }
 
-            box.pack_start(server_entry,false,false,0);
-            server_entry.grab_focus();
+                return false;
+            });
+
+            box.pack_start (channel_entry, false, false, 0);
+            channel_entry.grab_focus ();
 
             Gtk.Box dialog_box = dialog.get_content_area () as Gtk.Box;
-            assert(dialog_box != null);
-            dialog_box.pack_start(box,false,false,0);
+            assert (dialog_box != null);
+            dialog_box.pack_start (box, false, false, 0);
+
+            dialog.response.connect ((id) => {
+                if (id == Gtk.ResponseType.ACCEPT) {
+                    current_server ().send ("JOIN %s".printf (channel_entry.get_text ()));
+                    dialog.destroy ();
+                } else {
+                    dialog.destroy ();
+                }
+            });
+            
+            dialog.show_all ();
+        }
+
+        public void open_connect_dialog() {
+            Gtk.Dialog dialog = new Gtk.Dialog.with_buttons (_("Connect to server"), main_window,
+                                                             Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                                                             Gtk.Stock.OK, Gtk.ResponseType.ACCEPT, Gtk.Stock.CANCEL,
+                                                             Gtk.ResponseType.REJECT, null);
+
+            Gtk.Box box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            box.margin = 12;
+            box.pack_start (new Gtk.Label (_("Server URL:")), false, false, 0);
+
+            Gtk.Entry server_entry = new Gtk.Entry ();
+            server_entry.text = "irc://";
+            server_entry.activate.connect (() => { dialog.response (Gtk.ResponseType.ACCEPT); });
+
+            dialog.key_press_event.connect((key) => {
+                if (key.keyval == Gdk.keyval_from_name ("Escape")) {
+                    dialog.destroy ();
+                    return true;
+                }
+
+                return false;
+            });
+
+            box.pack_start (server_entry, false, false, 0);
+            server_entry.grab_focus ();
+
+            Gtk.Box dialog_box = dialog.get_content_area () as Gtk.Box;
+            assert (dialog_box != null);
+            dialog_box.pack_start (box, false, false, 0);
 
             dialog.response.connect((id) => {
                     if(id == Gtk.ResponseType.ACCEPT) {
@@ -1004,9 +1019,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
 
         // Misc
         public void open_link(string link) {
-#if WINDOWS
-            open_url_in_browser(link);
-#else
             try {
                 Process.spawn_command_line_async(Main.config.string["web_browser"].printf(link));
             } catch(SpawnError e) {
@@ -1014,7 +1026,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
                 d.response.connect(() => {d.destroy();});
                 d.show_all();
             }
-#endif
         }
 
         public string timestamp() {
@@ -1023,9 +1034,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
     }
 
     public static string get_file_path(string category, string file) {
-#if WINDOWS
-        return "resources\\" + file;
-#else
         string ret = PREFIX;
         if (category == "pixmap") {
             ret = ret + "/share/pixmaps";
@@ -1035,7 +1043,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.""";
             assert_not_reached();
         }
         return ret + "/" + file;
-#endif
     }
 
     public static string get_icon_path() {
